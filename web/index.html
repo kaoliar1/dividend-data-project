@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新浪财经历史分红数据获取与预处理</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+
+    <!-- 顶部导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="nav-logo">📊</span>
+                <span class="nav-title">分红数据可视化</span>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="菜单">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#overview" class="nav-link active">概述</a></li>
+                <li><a href="#fetch" class="nav-link">数据获取</a></li>
+                <li><a href="#preprocess" class="nav-link">预处理</a></li>
+                <li><a href="#visualization" class="nav-link">可视化</a></li>
+                <li><a href="#detail" class="nav-link">数据明细</a></li>
+                <li><a href="#techstack" class="nav-link">技术栈</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero / 项目概述 -->
+    <section class="hero" id="overview">
+        <div class="hero-content">
+            <h1 class="hero-title">新浪财经历史分红数据<br>获取与预处理</h1>
+            <p class="hero-subtitle">
+                从新浪财经抓取5只A股代表性股票的历史分红配股数据，经过清洗、转换与统计分析，
+                构建完整的分红数据可视化展示平台。
+            </p>
+            <div class="stock-tags">
+                <span class="stock-tag">贵州茅台 600519</span>
+                <span class="stock-tag">工商银行 601398</span>
+                <span class="stock-tag">中国平安 601318</span>
+                <span class="stock-tag">招商银行 600036</span>
+                <span class="stock-tag">五粮液 000858</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关键指标卡片 -->
+    <section class="metrics-section">
+        <div class="container">
+            <div class="metrics-grid">
+                <div class="metric-card reveal">
+                    <div class="metric-icon">📈</div>
+                    <div class="metric-value" id="metricStocks">5</div>
+                    <div class="metric-label">覆盖股票数</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-icon">📋</div>
+                    <div class="metric-value" id="metricRecords">154</div>
+                    <div class="metric-label">分红记录数</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-icon">📅</div>
+                    <div class="metric-value">1999-2026</div>
+                    <div class="metric-label">数据时间跨度</div>
+                </div>
+                <div class="metric-card reveal">
+                    <div class="metric-icon">🌐</div>
+                    <div class="metric-value">新浪财经</div>
+                    <div class="metric-label">数据源</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据获取过程 -->
+    <section class="section" id="fetch">
+        <div class="container">
+            <h2 class="section-title reveal">数据获取过程</h2>
+            <p class="section-desc reveal">
+                通过 Python requests 库抓取新浪财经个股分红配股页面，使用 BeautifulSoup 解析 HTML 表格数据。
+            </p>
+
+            <!-- 流程图 -->
+            <div class="flow-chart reveal">
+                <div class="flow-step">
+                    <div class="flow-icon">🌐</div>
+                    <div class="flow-text">发送HTTP请求</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">🔍</div>
+                    <div class="flow-text">解析HTML</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">📊</div>
+                    <div class="flow-text">提取表格数据</div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">💾</div>
+                    <div class="flow-text">保存CSV</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <!-- 技术要点 -->
+                <div class="card reveal">
+                    <h3 class="card-title">技术要点</h3>
+                    <ul class="feature-list">
+                        <li><strong>URL格式：</strong><code>vISSUE_ShareBonus/stockid/{代码}.phtml</code></li>
+                        <li><strong>编码处理：</strong>gb2312 编码页面，需指定解码</li>
+                        <li><strong>User-Agent 伪装：</strong>模拟 Chrome 浏览器请求头</li>
+                        <li><strong>请求间隔：</strong>随机 1-2 秒，避免反爬</li>
+                        <li><strong>重试机制：</strong>最多 3 次重试，间隔 5 秒</li>
+                        <li><strong>表格定位：</strong>通过表头内容动态定位，不依赖固定索引</li>
+                        <li><strong>分红年度推导：</strong>1-6月公告→上年，7-12月→当年</li>
+                    </ul>
+                </div>
+
+                <!-- 请求代码片段 -->
+                <div class="card reveal">
+                    <h3 class="card-title">核心代码 — 页面请求</h3>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-lang">Python</span>
+                            <span class="code-file">fetch_dividend.py</span>
+                        </div>
+                        <pre class="code-content" id="codeFetch"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 解析代码片段 -->
+            <div class="card reveal" style="margin-top: 24px;">
+                <h3 class="card-title">核心代码 — HTML 表格解析</h3>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Python</span>
+                        <span class="code-file">fetch_dividend.py</span>
+                    </div>
+                    <pre class="code-content" id="codeParse"></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据预处理过程 -->
+    <section class="section section-alt" id="preprocess">
+        <div class="container">
+            <h2 class="section-title reveal">数据预处理过程</h2>
+            <p class="section-desc reveal">
+                使用 pandas 对原始数据进行清洗、类型转换和去重，输出标准化的清洗后数据集。
+            </p>
+
+            <!-- 清洗步骤 -->
+            <div class="steps-grid">
+                <div class="step-card reveal">
+                    <div class="step-num">1</div>
+                    <h4>去空白与HTML残留</h4>
+                    <p>正则去除HTML标签，strip()去除首尾空白，清理多余空格</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-num">2</div>
+                    <h4>日期格式化</h4>
+                    <p>统一为 YYYY-MM-DD 格式，支持多种日期格式自动解析</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-num">3</div>
+                    <h4>数值类型转换</h4>
+                    <p>将派息金额、送股比例等转为 float，处理"--"等非数值标记</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-num">4</div>
+                    <h4>缺失值处理</h4>
+                    <p>无效标记转为 NaN，数值字段 NaN 填充为 0（表示无分红）</p>
+                </div>
+                <div class="step-card reveal">
+                    <div class="step-num">5</div>
+                    <h4>数据去重</h4>
+                    <p>基于股票代码+公告日期+分红方案字段去重，保留首条记录</p>
+                </div>
+            </div>
+
+            <!-- 预处理代码 -->
+            <div class="card reveal" style="margin-top: 32px;">
+                <h3 class="card-title">预处理核心代码</h3>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-lang">Python</span>
+                        <span class="code-file">preprocess.py</span>
+                    </div>
+                    <pre class="code-content" id="codePreprocess"></pre>
+                </div>
+            </div>
+
+            <!-- 预处理前后对比 -->
+            <div class="compare-box reveal">
+                <div class="compare-side">
+                    <h4>🔴 预处理前</h4>
+                    <ul>
+                        <li>原始HTML提取的字符串，含空白字符</li>
+                        <li>日期格式不统一</li>
+                        <li>数值字段为文本类型</li>
+                        <li>含"--"、"不分配"等非数值标记</li>
+                        <li>可能存在重复记录</li>
+                    </ul>
+                </div>
+                <div class="compare-arrow">→</div>
+                <div class="compare-side">
+                    <h4>🟢 预处理后</h4>
+                    <ul>
+                        <li>纯文本，无多余空白和HTML残留</li>
+                        <li>日期统一为 YYYY-MM-DD</li>
+                        <li>数值字段为 float 类型</li>
+                        <li>无效值转为 0，缺失日期为空字符串</li>
+                        <li>154 条干净记录，无重复</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据可视化结果 -->
+    <section class="section" id="visualization">
+        <div class="container">
+            <h2 class="section-title reveal">数据可视化结果</h2>
+            <p class="section-desc reveal">
+                基于 ECharts 渲染的交互式图表，支持悬停查看详情、图例切换、缩放等操作。
+            </p>
+
+            <!-- 图表1：年度分红总额柱状图 -->
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 年度分红总额柱状图</h3>
+                    <p class="chart-desc">所有5只股票按分红年度汇总的税前派息总额（每10股/元）</p>
+                </div>
+                <div class="chart-container" id="chart1"></div>
+                <div class="chart-tip">💡 提示：可拖动下方滑块缩放年份范围，点击图例可切换显示</div>
+            </div>
+
+            <!-- 图表2：个股每股派息趋势折线图 -->
+            <div class="chart-card reveal">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 个股每股派息趋势折线图</h3>
+                    <p class="chart-desc">每只股票按年度的每股派息（税前/元）变化趋势</p>
+                </div>
+                <div class="chart-container" id="chart2"></div>
+                <div class="chart-tip">💡 提示：点击图例可显示/隐藏对应股票的折线</div>
+            </div>
+
+            <!-- 图表3&4：并排 -->
+            <div class="chart-row">
+                <!-- 图表3：累计派息对比横向条形图 -->
+                <div class="chart-card reveal">
+                    <div class="chart-header">
+                        <h3 class="chart-title">🏆 个股累计派息对比</h3>
+                        <p class="chart-desc">5只股票历史累计派息总额（每10股/元）</p>
+                    </div>
+                    <div class="chart-container" id="chart3"></div>
+                </div>
+
+                <!-- 图表4：分红次数环形图 -->
+                <div class="chart-card reveal">
+                    <div class="chart-header">
+                        <h3 class="chart-title">🍩 分红次数占比</h3>
+                        <p class="chart-desc">5只股票历史分红总次数分布</p>
+                    </div>
+                    <div class="chart-container" id="chart4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据明细表 -->
+    <section class="section section-alt" id="detail">
+        <div class="container">
+            <h2 class="section-title reveal">数据明细表</h2>
+            <p class="section-desc reveal">
+                清洗后的完整分红数据记录，共 <strong>154</strong> 条。点击表头可排序。
+            </p>
+
+            <div class="table-toolbar reveal">
+                <div class="search-box">
+                    <input type="text" id="tableSearch" placeholder="搜索股票代码或名称...">
+                </div>
+                <div class="table-info" id="tableInfo"></div>
+            </div>
+
+            <div class="table-wrapper reveal">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th data-col="0">股票代码 <span class="sort-icon"></span></th>
+                            <th data-col="1">股票名称 <span class="sort-icon"></span></th>
+                            <th data-col="2">公告日期 <span class="sort-icon"></span></th>
+                            <th data-col="3">分红年度 <span class="sort-icon"></span></th>
+                            <th data-col="4">送股(每10股) <span class="sort-icon"></span></th>
+                            <th data-col="5">转增(每10股) <span class="sort-icon"></span></th>
+                            <th data-col="6">派息税前(每10股/元) <span class="sort-icon"></span></th>
+                            <th data-col="7">进度 <span class="sort-icon"></span></th>
+                            <th data-col="8">除权除息日 <span class="sort-icon"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination reveal">
+                <button class="page-btn" id="prevPage">上一页</button>
+                <span class="page-info" id="pageInfo"></span>
+                <button class="page-btn" id="nextPage">下一页</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术栈 & 页脚 -->
+    <section class="section" id="techstack">
+        <div class="container">
+            <h2 class="section-title reveal">技术栈</h2>
+            <p class="section-desc reveal">项目使用的核心技术与工具。</p>
+
+            <div class="tech-grid">
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🐍</div>
+                    <div class="tech-name">Python</div>
+                    <div class="tech-desc">数据抓取与处理主语言</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">📡</div>
+                    <div class="tech-name">Requests</div>
+                    <div class="tech-desc">HTTP 请求库</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🥣</div>
+                    <div class="tech-name">BeautifulSoup</div>
+                    <div class="tech-desc">HTML 解析库</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🐼</div>
+                    <div class="tech-name">Pandas</div>
+                    <div class="tech-desc">数据清洗与分析</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🌐</div>
+                    <div class="tech-name">HTML5</div>
+                    <div class="tech-desc">页面结构</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🎨</div>
+                    <div class="tech-name">CSS3</div>
+                    <div class="tech-desc">样式与动画</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">⚡</div>
+                    <div class="tech-name">JavaScript</div>
+                    <div class="tech-desc">交互逻辑</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">📊</div>
+                    <div class="tech-name">ECharts</div>
+                    <div class="tech-desc">数据可视化</div>
+                </div>
+                <div class="tech-card reveal">
+                    <div class="tech-icon">🎭</div>
+                    <div class="tech-name">Playwright</div>
+                    <div class="tech-desc">自动化测试</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>新浪财经历史分红数据获取与预处理项目</p>
+            <p class="footer-meta">数据来源：新浪财经 | 生成日期：2026年9月</p>
+            <p class="footer-disclaimer">⚠️ 本页面数据仅供学习研究使用，不构成任何投资建议</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
