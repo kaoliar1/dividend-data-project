@@ -117,18 +117,31 @@ npx playwright test
 
 ## 交付物清单
 
-| 编号 | 交付物 | 位置 |
-|------|--------|------|
-| D1 | Git 仓库链接 | 远程仓库 |
-| D2 | 展示网页 | `web/index.html` |
-| D3 | 网页截图 | `screenshots/` |
-| D4 | 对话记录文档 | `docs/conversation.md` |
-| D5 | 数据获取脚本 | `src/fetch_dividend.py` |
-| D6 | 数据预处理脚本 | `src/preprocess.py` |
-| D7 | 原始数据 | `data/raw/dividend_raw.csv` |
-| D8 | 预处理后数据 | `data/processed/` |
-| D9 | Playwright 测试 | `tests/playwright/` |
-| D10 | 需求计划文档 | `plan.md` |
+| 编号 | 交付物 | 位置 | 状态 |
+|------|--------|------|------|
+| D1 | Git 仓库链接 | 远程仓库 | ⏳ 远程仓库待用户后续绑定推送 |
+| D2 | 展示网页 | `web/index.html` | ✅ |
+| D3 | 网页截图 | `screenshots/` | ✅ |
+| D4 | 对话记录文档 | `docs/conversation.md` | ✅ |
+| D5 | 数据获取脚本 | `src/fetch_dividend.py` | ✅ |
+| D6 | 数据预处理脚本 | `src/preprocess.py` | ✅ |
+| D7 | 原始数据 | `data/raw/dividend_raw.csv` | ✅ |
+| D8 | 预处理后数据 | `data/processed/` | ✅ |
+| D9 | Playwright 测试 | `tests/playwright/` | ✅ |
+| D10 | 需求计划文档 | `plan.md` | ✅ |
+| D11 | 项目说明文档 | `README.md` | ✅ |
+
+### Git 远程仓库绑定说明
+
+本地 Git 仓库已初始化并完成 5 次规范提交，远程仓库需用户手动绑定推送：
+
+```powershell
+# 1. 在 Gitee/GitHub 上创建空仓库（不要初始化 README）
+# 2. 关联远程仓库
+git remote add origin <你的仓库地址>
+# 3. 推送
+git push -u origin master
+```
 
 ## 声明
 
